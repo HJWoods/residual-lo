@@ -310,9 +310,9 @@ class DiscreteBottleneckConv(nn.Module):
 class DiscreteBottleneckConvBlock(nn.Module):
     """DiscreteBottleneckConv → optional MaxPool; returns ``(y, code)``.
 
-    No BN / GELU / other activation on the data path after LO. Nonlinearity
-    lives only inside the LO hypernet (code→θ). MaxPool is spatial downsample
-    only (not an activation).
+    No BN / GELU / other activation on the data path after the Discrete
+    Bottleneck Layer. Nonlinearity lives only inside the hypernet (code→θ).
+    MaxPool is spatial downsample only (not an activation).
     """
 
     def __init__(
