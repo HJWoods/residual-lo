@@ -1,24 +1,26 @@
 # residual-lo
 
-Installable discrete / residual **linear-operator** layers for interpretability experiments.
+Installable residual **linear-operator** architecture for discrete interpretability.
 
-- `LinearOperatorLayer` — BinaryGate STE codes → hypernet-generated affine (mainline: shared \(W_0\) + `diag_low_rank` residual)
-- `ResidualLOConv` / `ResidualLOConvBlock` — same idea as a convolution (shared \(W_0\) conv + channel residual)
-- Vision experiments: CIFAR-10 LO-conv, MNIST-family LO vs MLP
+Mainline recipe (TinyGPT FineWeb / SmolTalk):
 
-**Hard rule:** all LO *layer* logic lives here. Transformer / TinyGPT / BabyLM / SFT / chat live in [`HJWoods/DiscreteInterp`](https://github.com/HJWoods/DiscreteInterp) and import this package — they must not reimplement gates, hypernets, or generated affines.
+- `BinaryGate` STE codes → one hard region per token
+- shared \(W_0,b_0\) + code-conditioned residual \(\Delta(c)\) (`use_residual_base=True`)
+- `diag_low_rank` residual map
+- `residual_mlp` hypernet (code→θ only)
+- **data-path purity:** no post-LO activation / BN on \(x\)
+
+Transformer training (TinyGPT, BabyLM, instruct SFT, chat) lives in [`HJWoods/DiscreteInterp`](https://github.com/HJWoods/DiscreteInterp) and **imports** this package — it must not reimplement gates, hypernets, or generated affines.
 
 ## Install
 
 ```bash
-# From GitHub (once the repo exists)
 uv add git+https://github.com/HJWoods/residual-lo.git
 
 # Editable checkout
 uv add --editable /path/to/residual-lo
 
-# Library + vision experiment extras
-uv sync --extra vision --extra dev
+uv sync --extra dev
 ```
 
 ## Import
@@ -26,18 +28,22 @@ uv sync --extra vision --extra dev
 ```python
 from residual_lo import (
     LinearOperatorLayer,
+    BinaryGate,
+    ResidualHypernet,
     ResidualLOConv,
     ResidualLOConvBlock,
     gate_diversity_loss,
 )
-```
 
-## Experiments
-
-```bash
-uv run python experiments/mnist.py --help
-uv run python experiments/cifar10_lo_conv.py --help
-# or: ./scripts/run_cifar10_lo_conv.sh
+layer = LinearOperatorLayer(
+    in_features=256,
+    out_features=256,
+    codes_per_head=16,
+    affine_mode="diag_low_rank",
+    rank=64,
+    generator_type="residual_mlp",
+    use_residual_base=True,
+)
 ```
 
 ## Constraint (data-path purity)

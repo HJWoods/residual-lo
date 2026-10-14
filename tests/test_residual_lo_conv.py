@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import torch
 import torch.nn.functional as F
 from residual_lo import (
@@ -170,40 +167,6 @@ def test_block_no_bn_or_activation_after_lo():
     assert torch.allclose(y, block.pool(y_lo), atol=1e-6, rtol=1e-5)
 
 
-@torch.no_grad()
-def test_cifar_stages_no_datapath_gelu():
-    """CIFAR LO/dense stage wrappers have no BN/GELU (hypernet GELU OK)."""
-    import importlib
-
-    experiments = Path(__file__).resolve().parents[1] / "experiments"
-    if str(experiments) not in sys.path:
-        sys.path.insert(0, str(experiments))
-    mod = importlib.import_module("cifar10_lo_conv")
-    lo = mod.CIFAR10LOConv(
-        model="lo",
-        channels=(8, 16, 32),
-        codes=4,
-        rank=2,
-        hypernet_width=32,
-        hypernet_depth=2,
-    )
-    dense = mod.CIFAR10LOConv(model="dense", channels=(8, 16, 32))
-    for net in (lo, dense):
-        for stage in (net.stage1, net.stage2, net.stage3):
-            assert not hasattr(stage, "bn")
-            assert not hasattr(stage, "act")
-            # Immediate children only — hypernet GELU under .lo is allowed.
-            for child in stage.children():
-                assert not isinstance(child, torch.nn.BatchNorm2d)
-                assert not isinstance(child, (torch.nn.GELU, torch.nn.ReLU, torch.nn.SiLU))
-    x = torch.randn(2, 3, 32, 32)
-    logits_lo, codes = lo(x)
-    logits_d, _ = dense(x)
-    assert logits_lo.shape == (2, 10)
-    assert logits_d.shape == (2, 10)
-    assert codes is not None and len(codes) == 3
-
-
 if __name__ == "__main__":
     test_forward_shapes_pool_and_spatial()
     test_nchw_apply_matches_flat_apply()
@@ -213,5 +176,4 @@ if __name__ == "__main__":
     test_strided_odd_map_matches_base_spatial()
     test_nonzero_asymmetric_padding_matches_base_spatial()
     test_block_no_bn_or_activation_after_lo()
-    test_cifar_stages_no_datapath_gelu()
     print("all residual-lo-conv tests passed")
