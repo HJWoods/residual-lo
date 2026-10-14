@@ -352,7 +352,3 @@ class DiscreteBottleneckConvBlock(nn.Module):
         if self.pool is not None:
             y = self.pool(y)
         return y, code
-
-# Back-compat aliases (prefer DiscreteBottleneckConv*).
-ResidualLOConv = DiscreteBottleneckConv
-ResidualLOConvBlock = DiscreteBottleneckConvBlock

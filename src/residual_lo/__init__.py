@@ -13,7 +13,6 @@ from residual_lo.linear_operator import (
     BinaryGate,
     DiscreteBottleneckLayer,
     GeneratorType,
-    LinearOperatorLayer,
     ResidualBlock,
     ResidualHypernet,
     apply_diag_low_rank_from_unique,
@@ -32,8 +31,6 @@ from residual_lo.residual_lo_conv import (
     DiscreteBottleneckConv,
     DiscreteBottleneckConvBlock,
     GateMode,
-    ResidualLOConv,
-    ResidualLOConvBlock,
     apply_generated_operator_nchw,
 )
 
@@ -47,12 +44,9 @@ __all__ = [
     "DiscreteBottleneckLayer",
     "GateMode",
     "GeneratorType",
-    "LinearOperatorLayer",  # alias of DiscreteBottleneckLayer
     "MLP",
     "ResidualBlock",
     "ResidualHypernet",
-    "ResidualLOConv",  # alias of DiscreteBottleneckConv
-    "ResidualLOConvBlock",  # alias of DiscreteBottleneckConvBlock
     "apply_diag_low_rank_from_unique",
     "apply_generated_affine",
     "apply_generated_diag_low_rank_affine",

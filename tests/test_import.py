@@ -13,19 +13,20 @@ def test_public_symbols_importable():
         DiscreteBottleneckConv,
         DiscreteBottleneckConvBlock,
         DiscreteBottleneckLayer,
-        LinearOperatorLayer,
         MLP,
-        ResidualLOConv,
-        ResidualLOConvBlock,
         gate_diversity_loss,
     )
 
     assert callable(DiscreteBottleneckLayer)
-    assert DiscreteBottleneckLayer is LinearOperatorLayer
     assert callable(BinaryGate)
     assert callable(DiscreteBottleneckConv)
-    assert DiscreteBottleneckConv is ResidualLOConv
     assert callable(DiscreteBottleneckConvBlock)
-    assert DiscreteBottleneckConvBlock is ResidualLOConvBlock
     assert callable(gate_diversity_loss)
     assert callable(MLP)
+
+
+def test_legacy_names_removed():
+    import residual_lo as pkg
+
+    for name in ("LinearOperatorLayer", "ResidualLOConv", "ResidualLOConvBlock"):
+        assert not hasattr(pkg, name), f"legacy alias still exported: {name}"

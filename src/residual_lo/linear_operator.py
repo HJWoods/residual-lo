@@ -187,7 +187,7 @@ def apply_generated_operator(
     raise ValueError(f"unknown affine_mode={affine_mode!r}")
 
 
-# Back-compat alias used by residual-affine property tests.
+# Public synonym (same implementation as apply_generated_operator).
 apply_generated_parameters = apply_generated_operator
 
 
@@ -675,6 +675,3 @@ class DiscreteBottleneckLayer(nn.Module):
 
     def count_parameters(self) -> int:
         return sum(parameter.numel() for parameter in self.parameters())
-
-# Back-compat alias (prefer DiscreteBottleneckLayer).
-LinearOperatorLayer = DiscreteBottleneckLayer

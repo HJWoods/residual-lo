@@ -12,7 +12,7 @@ Mainline recipe (TinyGPT FineWeb / SmolTalk):
 
 Transformer training (TinyGPT, BabyLM, instruct SFT, chat) lives in [`HJWoods/DiscreteInterp`](https://github.com/HJWoods/DiscreteInterp) and **imports** this package — it must not reimplement gates, hypernets, or generated affines.
 
-Package / import name stays `residual-lo` / `residual_lo`; the layers themselves are **Discrete Bottleneck Layers** (`DiscreteBottleneckLayer`, `DiscreteBottleneckConv`). Older names (`LinearOperatorLayer`, `ResidualLOConv`) remain as aliases.
+Package / import name stays `residual-lo` / `residual_lo`; the layers themselves are **Discrete Bottleneck Layers** (`DiscreteBottleneckLayer`, `DiscreteBottleneckConv`).
 
 ## Install
 
