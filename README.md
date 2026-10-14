@@ -1,52 +1,73 @@
-# residual-lo
+# residual-lo — Discrete Bottleneck Layers
 
-Installable discrete / residual **linear-operator** layers for interpretability experiments.
+Installable **Discrete Bottleneck Layers** for discrete interpretability.
 
-- `LinearOperatorLayer` — BinaryGate STE codes → hypernet-generated affine (mainline: shared \(W_0\) + `diag_low_rank` residual)
-- `ResidualLOConv` / `ResidualLOConvBlock` — same idea as a convolution (shared \(W_0\) conv + channel residual)
-- Vision experiments: CIFAR-10 LO-conv, MNIST-family LO vs MLP
+Mainline recipe (TinyGPT FineWeb / SmolTalk):
 
-**Hard rule:** all LO *layer* logic lives here. Transformer / TinyGPT / BabyLM / SFT / chat live in [`HJWoods/DiscreteInterp`](https://github.com/HJWoods/DiscreteInterp) and import this package — they must not reimplement gates, hypernets, or generated affines.
+- `BinaryGate` STE codes → one hard region per token
+- shared \(W_0,b_0\) + code-conditioned residual \(\Delta(c)\) (`use_residual_base=True`)
+- `diag_low_rank` residual map
+- `residual_mlp` hypernet (code→θ only)
+- **data-path purity:** no post-layer activation / BN on \(x\)
+
+Transformer training (TinyGPT, BabyLM, instruct SFT, chat) lives in [`HJWoods/DiscreteInterp`](https://github.com/HJWoods/DiscreteInterp) and **imports** this package — it must not reimplement gates, hypernets, or generated affines.
+
+Package / import name stays `residual-lo` / `residual_lo`; the layers themselves are **Discrete Bottleneck Layers** (`DiscreteBottleneckLayer`, `DiscreteBottleneckConv`).
 
 ## Install
 
 ```bash
-# From GitHub (once the repo exists)
 uv add git+https://github.com/HJWoods/residual-lo.git
 
 # Editable checkout
 uv add --editable /path/to/residual-lo
 
-# Library + vision experiment extras
-uv sync --extra vision --extra dev
+uv sync --extra dev
 ```
 
 ## Import
 
 ```python
 from residual_lo import (
-    LinearOperatorLayer,
-    ResidualLOConv,
-    ResidualLOConvBlock,
+    DiscreteBottleneckLayer,
+    DiscreteBottleneckConv,
+    DiscreteBottleneckConvBlock,
+    BinaryGate,
     gate_diversity_loss,
 )
-```
 
-## Experiments
-
-```bash
-uv run python experiments/mnist.py --help
-uv run python experiments/cifar10_lo_conv.py --help
-# or: ./scripts/run_cifar10_lo_conv.sh
+layer = DiscreteBottleneckLayer(
+    in_features=256,
+    out_features=256,
+    codes_per_head=16,
+    output_initialization_scale=0.1,
+    affine_mode="diag_low_rank",
+    rank=64,
+    generator_type="residual_mlp",
+    use_residual_base=True,
+)
 ```
 
 ## Constraint (data-path purity)
 
-No GELU/ReLU/SiLU/BN on the data path after \(W_0\) / after ResidualLO*. Activations are allowed only inside hypernetworks (code→θ).
+No GELU/ReLU/SiLU/BN on the data path after \(W_0\) / after a Discrete Bottleneck Layer. Activations are allowed only inside hypernetworks (code→θ).
 
 ## Tests
 
 ```bash
 uv sync --extra dev
 uv run pytest -q
+```
+
+## MLP benchmarks (no conv / no attention)
+
+Compares plain GELU MLPs vs Discrete Bottleneck Layers on GPU:
+
+- forward / forward+backward throughput for \(d\!\to\!d\) maps
+- short synthetic regression (smooth + piecewise-affine targets)
+
+```bash
+./scripts/run_mlp_benchmarks.sh                  # full sweep on CUDA
+./scripts/run_mlp_benchmarks.sh --quick          # smaller smoke run
+# writes benchmarks/results/mlp_vs_residual_lo.json
 ```

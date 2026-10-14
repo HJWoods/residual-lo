@@ -1,7 +1,7 @@
 [project]
 name = "residual-lo"
 version = "0.1.0"
-description = "Discrete residual linear-operator layers (BinaryGate + hypernet affine, ResidualLOConv)"
+description = "Discrete Bottleneck Layers (BinaryGate STE + hypernet affine Δ(c))"
 readme = "README.md"
 authors = [
     { name = "HJWoods", email = "hector.woods5527@gmail.com" }
@@ -12,11 +12,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-vision = [
-    "pillow>=10.0.0",
-    "torchvision>=0.19.0",
-    "tqdm>=4.70.0",
-]
 dev = [
     "pytest>=8.0.0",
 ]
@@ -30,4 +25,4 @@ packages = ["src/residual_lo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src", "experiments"]
+pythonpath = ["src"]
