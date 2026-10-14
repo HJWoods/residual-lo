@@ -56,3 +56,16 @@ No GELU/ReLU/SiLU/BN on the data path after \(W_0\) / after ResidualLO*. Activat
 uv sync --extra dev
 uv run pytest -q
 ```
+
+## MLP benchmarks (no conv / no attention)
+
+Compares plain GELU MLPs vs residual LO on GPU:
+
+- forward / forward+backward throughput for \(d\!\to\!d\) maps
+- short synthetic regression (smooth + piecewise-affine targets)
+
+```bash
+./scripts/run_mlp_benchmarks.sh                  # full sweep on CUDA
+./scripts/run_mlp_benchmarks.sh --quick          # smaller smoke run
+# writes benchmarks/results/mlp_vs_residual_lo.json
+```
