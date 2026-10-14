@@ -10,6 +10,7 @@ class MLP(nn.Module):
         in_features: int,
         out_features: int,
         parameter_budget: int,
+        activation: nn.Module = nn.ReLU(),
     ) -> "MLP":
         """
         Create a two-hidden-layer MLP as close as possible to a parameter budget.
@@ -50,6 +51,7 @@ class MLP(nn.Module):
             in_features=in_features,
             out_features=out_features,
             hidden_sizes=[width, width],
+            activation=activation,
         )
 
     def __init__(

@@ -131,6 +131,7 @@ def build_param_matched_mlp(lo: LinearOperatorLayer) -> MLP:
         in_features=lo.in_features,
         out_features=lo.out_features,
         parameter_budget=count_params(lo),
+        activation=nn.GELU(),
     )
 
 
