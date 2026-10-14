@@ -10,6 +10,9 @@ def test_version():
 def test_public_symbols_importable():
     from residual_lo import (
         BinaryGate,
+        DiscreteBottleneckConv,
+        DiscreteBottleneckConvBlock,
+        DiscreteBottleneckLayer,
         LinearOperatorLayer,
         MLP,
         ResidualLOConv,
@@ -17,9 +20,12 @@ def test_public_symbols_importable():
         gate_diversity_loss,
     )
 
-    assert callable(LinearOperatorLayer)
+    assert callable(DiscreteBottleneckLayer)
+    assert DiscreteBottleneckLayer is LinearOperatorLayer
     assert callable(BinaryGate)
-    assert callable(ResidualLOConv)
-    assert callable(ResidualLOConvBlock)
+    assert callable(DiscreteBottleneckConv)
+    assert DiscreteBottleneckConv is ResidualLOConv
+    assert callable(DiscreteBottleneckConvBlock)
+    assert DiscreteBottleneckConvBlock is ResidualLOConvBlock
     assert callable(gate_diversity_loss)
     assert callable(MLP)

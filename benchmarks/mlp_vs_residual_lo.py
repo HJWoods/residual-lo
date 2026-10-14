@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""GPU benchmarks: plain MLP vs residual LO (no conv / no attention).
+"""GPU benchmarks: plain MLP vs Discrete Bottleneck Layers (no conv / no attention).
 
 Measures:
   1) Forward and forward+backward wall time / throughput for d→d maps
@@ -24,7 +24,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from residual_lo import LinearOperatorLayer, MLP
+from residual_lo import DiscreteBottleneckLayer, MLP
 
 
 @dataclass
@@ -110,10 +110,10 @@ def build_lo(
     codes: int = 16,
     rank: int | None = None,
     unique_code_batching: bool = True,
-) -> LinearOperatorLayer:
+) -> DiscreteBottleneckLayer:
     if rank is None:
         rank = max(8, d // 4)
-    return LinearOperatorLayer(
+    return DiscreteBottleneckLayer(
         in_features=d,
         out_features=d,
         codes_per_head=codes,
@@ -126,7 +126,7 @@ def build_lo(
     )
 
 
-def build_param_matched_mlp(lo: LinearOperatorLayer) -> MLP:
+def build_param_matched_mlp(lo: DiscreteBottleneckLayer) -> MLP:
     return MLP.from_parameter_budget(
         in_features=lo.in_features,
         out_features=lo.out_features,
@@ -222,13 +222,13 @@ def run_timing(
                 "mlp_param_matched",
                 ModelWrap("mlp", build_param_matched_mlp(lo_ref)),
             ),
-            ("residual_lo", ModelWrap("lo", lo_ref)),
+            ("discrete_bottleneck", ModelWrap("lo", lo_ref)),
         ]
         for name, model in arms:
             model = model.to(device)
             for batch in batches:
                 # Skip known-heavy cells on 8GB cards (d=512 × B=4096 LO bwd).
-                if d >= 512 and batch >= 4096 and name == "residual_lo":
+                if d >= 512 and batch >= 4096 and name == "discrete_bottleneck":
                     print(f"[timing] SKIP {name} d={d} B={batch} (VRAM guard)")
                     continue
                 try:
@@ -278,7 +278,7 @@ def make_smooth_target(x: torch.Tensor) -> torch.Tensor:
 
 
 def make_piecewise_affine_target(x: torch.Tensor, *, n_regions: int = 8) -> torch.Tensor:
-    """Region-wise affine map — closer to residual-LO inductive bias.
+    """Region-wise affine map — closer to Discrete Bottleneck Layer inductive bias.
 
     Regions keyed by sign pattern of the first ``k`` coordinates (k≈log2 regions).
     """
@@ -333,7 +333,7 @@ def train_synthetic(
     _sync(device)
     seconds = time.perf_counter() - t0
     # Resolve display name from wrap
-    name = "residual_lo" if getattr(model, "kind", "") == "lo" else "mlp"
+    name = "discrete_bottleneck" if getattr(model, "kind", "") == "lo" else "mlp"
     if hasattr(model, "core") and isinstance(model.core, MLP):
         # distinguish expand vs matched via param count later
         name = "mlp"
@@ -373,7 +373,7 @@ def run_train(
                     "mlp_param_matched",
                     ModelWrap("mlp", build_param_matched_mlp(lo_ref)),
                 ),
-                ("residual_lo", ModelWrap("lo", lo_ref)),
+                ("discrete_bottleneck", ModelWrap("lo", lo_ref)),
             )
             for label, model in arms:
                 model = model.to(device)

@@ -109,7 +109,7 @@ def apply_generated_diag_low_rank_affine(
     mid = _batched_affine_mv(v, x)
     output = _batched_affine_mv(u, mid)
     if diag_size == out_features:
-        # Hot path for ResidualLOMLP (d→d): d⊙x with no pad/cat.
+        # Hot path for DiscreteBottleneckMLP (d→d): d⊙x with no pad/cat.
         output = output + diagonal * x[:, :diag_size]
     else:
         # Rectangular: pad the trailing out-diag_size coords with zeros.
@@ -317,8 +317,8 @@ class ResidualHypernet(nn.Module):
         return self.parameter_head(h)
 
 
-class LinearOperatorLayer(nn.Module):
-    """Binary-gated residual (or plain) affine: one map per hard code.
+class DiscreteBottleneckLayer(nn.Module):
+    """Discrete Bottleneck Layer: BinaryGate STE → one affine map per hard code.
 
     Mainline: ``use_residual_base=True``, ``affine_mode=diag_low_rank``,
     ``generator_type=residual_mlp``. Flat ``mlp`` is kept as a small control
@@ -675,3 +675,6 @@ class LinearOperatorLayer(nn.Module):
 
     def count_parameters(self) -> int:
         return sum(parameter.numel() for parameter in self.parameters())
+
+# Back-compat alias (prefer DiscreteBottleneckLayer).
+LinearOperatorLayer = DiscreteBottleneckLayer

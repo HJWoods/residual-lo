@@ -1,7 +1,7 @@
 [project]
 name = "residual-lo"
 version = "0.1.0"
-description = "Residual linear-operator layers (BinaryGate STE + hypernet affine Δ(c))"
+description = "Discrete Bottleneck Layers (BinaryGate STE + hypernet affine Δ(c))"
 readme = "README.md"
 authors = [
     { name = "HJWoods", email = "hector.woods5527@gmail.com" }

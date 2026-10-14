@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run plain-MLP vs residual-LO GPU benchmarks (no conv / no attention).
+# Run plain-MLP vs Discrete Bottleneck Layer GPU benchmarks (no conv / no attention).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

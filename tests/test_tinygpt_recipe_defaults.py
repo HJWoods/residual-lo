@@ -1,10 +1,10 @@
-"""Assert LinearOperatorLayer defaults match the TinyGPT FineWeb/SmolTalk recipe."""
+"""Assert DiscreteBottleneckLayer defaults match the TinyGPT FineWeb/SmolTalk recipe."""
 
-from residual_lo import LinearOperatorLayer
+from residual_lo import DiscreteBottleneckLayer
 
 
 def test_mainline_defaults_match_tinygpt_recipe():
-    layer = LinearOperatorLayer(
+    layer = DiscreteBottleneckLayer(
         in_features=32,
         out_features=32,
         codes_per_head=8,

@@ -1,6 +1,6 @@
-"""Residual LO applied as a convolution: shared W0 conv + code-conditioned Δ.
+"""Discrete Bottleneck Layer as a convolution: shared W0 conv + code-conditioned Δ.
 
-Same spirit as ``LinearOperatorLayer`` / ``residual_lo``:
+Same spirit as ``DiscreteBottleneckLayer``:
 
 - ``BinaryGate`` STE hard codes (K bits)
 - shared base map ``W0`` (here a ``Conv2d``)
@@ -93,7 +93,7 @@ def apply_generated_operator_nchw(
     )
 
 
-class ResidualLOConv(nn.Module):
+class DiscreteBottleneckConv(nn.Module):
     """Binary-gated residual convolution with a K·rank channel residual.
 
     Mainline: ``use_residual_base=True``, ``affine_mode=diag_low_rank``,
@@ -307,8 +307,8 @@ class ResidualLOConv(nn.Module):
         return sum(p.numel() for p in self.parameters())
 
 
-class ResidualLOConvBlock(nn.Module):
-    """ResidualLOConv → optional MaxPool; returns ``(y, code)``.
+class DiscreteBottleneckConvBlock(nn.Module):
+    """DiscreteBottleneckConv → optional MaxPool; returns ``(y, code)``.
 
     No BN / GELU / other activation on the data path after LO. Nonlinearity
     lives only inside the LO hypernet (code→θ). MaxPool is spatial downsample
@@ -331,7 +331,7 @@ class ResidualLOConvBlock(nn.Module):
         pool: bool = True,
     ):
         super().__init__()
-        self.lo = ResidualLOConv(
+        self.lo = DiscreteBottleneckConv(
             in_channels,
             out_channels,
             kernel_size=kernel_size,
@@ -352,3 +352,7 @@ class ResidualLOConvBlock(nn.Module):
         if self.pool is not None:
             y = self.pool(y)
         return y, code
+
+# Back-compat aliases (prefer DiscreteBottleneckConv*).
+ResidualLOConv = DiscreteBottleneckConv
+ResidualLOConvBlock = DiscreteBottleneckConvBlock

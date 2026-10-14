@@ -1,18 +1,18 @@
-"""Tests for ResidualLOConv: reuse LO gate/apply invariants in conv form."""
+"""Tests for DiscreteBottleneckConv: Discrete Bottleneck Layer gate/apply invariants in conv form."""
 
 from __future__ import annotations
 
 import torch
 import torch.nn.functional as F
 from residual_lo import (
-    ResidualLOConv,
-    ResidualLOConvBlock,
+    DiscreteBottleneckConv,
+    DiscreteBottleneckConvBlock,
     apply_generated_operator,
     apply_generated_operator_nchw,
 )
 
 
-def _lo_conv(**kwargs) -> ResidualLOConv:
+def _lo_conv(**kwargs) -> DiscreteBottleneckConv:
     defaults = dict(
         in_channels=8,
         out_channels=8,
@@ -28,7 +28,7 @@ def _lo_conv(**kwargs) -> ResidualLOConv:
         output_initialization_scale=0.5,
     )
     defaults.update(kwargs)
-    return ResidualLOConv(**defaults)
+    return DiscreteBottleneckConv(**defaults)
 
 
 @torch.no_grad()
@@ -144,9 +144,9 @@ def test_nonzero_asymmetric_padding_matches_base_spatial():
 
 @torch.no_grad()
 def test_block_no_bn_or_activation_after_lo():
-    """ResidualLOConvBlock must not wrap LO with BN/GELU (Mori constraint)."""
+    """DiscreteBottleneckConvBlock must not wrap LO with BN/GELU (Mori constraint)."""
     torch.manual_seed(7)
-    block = ResidualLOConvBlock(
+    block = DiscreteBottleneckConvBlock(
         3,
         8,
         codes=4,
@@ -176,4 +176,4 @@ if __name__ == "__main__":
     test_strided_odd_map_matches_base_spatial()
     test_nonzero_asymmetric_padding_matches_base_spatial()
     test_block_no_bn_or_activation_after_lo()
-    print("all residual-lo-conv tests passed")
+    print("all discrete-bottleneck-conv tests passed")

@@ -1,10 +1,10 @@
-"""Property tests: residual LO preserves one hard code → one affine map on x."""
+"""Property tests: Discrete Bottleneck Layer preserves one hard code → one affine map on x."""
 
 from __future__ import annotations
 
 import torch
 import torch.nn.functional as F
-from residual_lo import LinearOperatorLayer, apply_generated_parameters
+from residual_lo import DiscreteBottleneckLayer, apply_generated_parameters
 
 
 def _residual_layer(
@@ -13,8 +13,8 @@ def _residual_layer(
     k: int = 4,
     rank: int = 3,
     affine_mode: str = "diag_low_rank",
-) -> LinearOperatorLayer:
-    return LinearOperatorLayer(
+) -> DiscreteBottleneckLayer:
+    return DiscreteBottleneckLayer(
         in_features=d,
         out_features=d,
         codes_per_head=k,
@@ -66,7 +66,7 @@ def test_fixed_hard_code_is_affine_in_x():
 def test_materialized_w_matches_forward_full():
     """Materialize W_c = W_0 + W_Δ(c) and match apply_parameters (full affine_mode)."""
     torch.manual_seed(1)
-    layer = LinearOperatorLayer(
+    layer = DiscreteBottleneckLayer(
         in_features=12,
         out_features=10,
         codes_per_head=3,

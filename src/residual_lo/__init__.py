@@ -1,13 +1,17 @@
-"""Residual / discrete linear-operator layers.
+"""Discrete Bottleneck Layers.
 
-Public surface for the LO bottleneck (BinaryGate + hypernet-generated affine)
-and ResidualLOConv. Transformer / TinyGPT code lives in DiscreteInterp and
-imports from here — do not reimplement layer logic there.
+Public surface: BinaryGate STE + hypernet-generated affine
+(``DiscreteBottleneckLayer``) and the conv form
+(``DiscreteBottleneckConv``). Transformer / TinyGPT code lives in
+DiscreteInterp and imports from here — do not reimplement layer logic there.
+
+Package install name remains ``residual-lo`` / ``import residual_lo``.
 """
 
 from residual_lo.linear_operator import (
     AffineMode,
     BinaryGate,
+    DiscreteBottleneckLayer,
     GeneratorType,
     LinearOperatorLayer,
     ResidualBlock,
@@ -25,6 +29,8 @@ from residual_lo.linear_operator import (
 )
 from residual_lo.mlp import MLP
 from residual_lo.residual_lo_conv import (
+    DiscreteBottleneckConv,
+    DiscreteBottleneckConvBlock,
     GateMode,
     ResidualLOConv,
     ResidualLOConvBlock,
@@ -36,14 +42,17 @@ __version__ = "0.1.0"
 __all__ = [
     "AffineMode",
     "BinaryGate",
+    "DiscreteBottleneckConv",
+    "DiscreteBottleneckConvBlock",
+    "DiscreteBottleneckLayer",
     "GateMode",
     "GeneratorType",
-    "LinearOperatorLayer",
+    "LinearOperatorLayer",  # alias of DiscreteBottleneckLayer
     "MLP",
     "ResidualBlock",
     "ResidualHypernet",
-    "ResidualLOConv",
-    "ResidualLOConvBlock",
+    "ResidualLOConv",  # alias of DiscreteBottleneckConv
+    "ResidualLOConvBlock",  # alias of DiscreteBottleneckConvBlock
     "apply_diag_low_rank_from_unique",
     "apply_generated_affine",
     "apply_generated_diag_low_rank_affine",

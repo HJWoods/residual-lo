@@ -1,6 +1,6 @@
-# residual-lo
+# residual-lo — Discrete Bottleneck Layers
 
-Installable residual **linear-operator** architecture for discrete interpretability.
+Installable **Discrete Bottleneck Layers** for discrete interpretability.
 
 Mainline recipe (TinyGPT FineWeb / SmolTalk):
 
@@ -8,9 +8,11 @@ Mainline recipe (TinyGPT FineWeb / SmolTalk):
 - shared \(W_0,b_0\) + code-conditioned residual \(\Delta(c)\) (`use_residual_base=True`)
 - `diag_low_rank` residual map
 - `residual_mlp` hypernet (code→θ only)
-- **data-path purity:** no post-LO activation / BN on \(x\)
+- **data-path purity:** no post-layer activation / BN on \(x\)
 
 Transformer training (TinyGPT, BabyLM, instruct SFT, chat) lives in [`HJWoods/DiscreteInterp`](https://github.com/HJWoods/DiscreteInterp) and **imports** this package — it must not reimplement gates, hypernets, or generated affines.
+
+Package / import name stays `residual-lo` / `residual_lo`; the layers themselves are **Discrete Bottleneck Layers** (`DiscreteBottleneckLayer`, `DiscreteBottleneckConv`). Older names (`LinearOperatorLayer`, `ResidualLOConv`) remain as aliases.
 
 ## Install
 
@@ -27,18 +29,18 @@ uv sync --extra dev
 
 ```python
 from residual_lo import (
-    LinearOperatorLayer,
+    DiscreteBottleneckLayer,
+    DiscreteBottleneckConv,
+    DiscreteBottleneckConvBlock,
     BinaryGate,
-    ResidualHypernet,
-    ResidualLOConv,
-    ResidualLOConvBlock,
     gate_diversity_loss,
 )
 
-layer = LinearOperatorLayer(
+layer = DiscreteBottleneckLayer(
     in_features=256,
     out_features=256,
     codes_per_head=16,
+    output_initialization_scale=0.1,
     affine_mode="diag_low_rank",
     rank=64,
     generator_type="residual_mlp",
@@ -48,7 +50,7 @@ layer = LinearOperatorLayer(
 
 ## Constraint (data-path purity)
 
-No GELU/ReLU/SiLU/BN on the data path after \(W_0\) / after ResidualLO*. Activations are allowed only inside hypernetworks (code→θ).
+No GELU/ReLU/SiLU/BN on the data path after \(W_0\) / after a Discrete Bottleneck Layer. Activations are allowed only inside hypernetworks (code→θ).
 
 ## Tests
 
@@ -59,7 +61,7 @@ uv run pytest -q
 
 ## MLP benchmarks (no conv / no attention)
 
-Compares plain GELU MLPs vs residual LO on GPU:
+Compares plain GELU MLPs vs Discrete Bottleneck Layers on GPU:
 
 - forward / forward+backward throughput for \(d\!\to\!d\) maps
 - short synthetic regression (smooth + piecewise-affine targets)
